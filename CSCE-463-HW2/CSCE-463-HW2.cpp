@@ -19,12 +19,11 @@ int main(int argc, char *argv[])
 	DWORD IP = inet_addr(argv[1]);
 	if (IP==INADDR_NONE)	//type A or 1
 	{
-		printf("Query\t: %s, type 1, TXID \nServer\t: %s", argv[1], argv[2]);
+		dnsLookup.constructQuery(argv[1], argv[2], 1);
 	}
 	else //type PTR or 12
 	{
 		string queryIP = dnsLookup.reverseIP(argv[1]);	//reverse IP
-		cout << "Query\t: "<<queryIP;
-		printf(".in-addr.arpa, type 12, TXID \nServer\t: %s \n",argv[2]);
+		dnsLookup.constructQuery(argv[1], argv[2], 12);
 	}
 }

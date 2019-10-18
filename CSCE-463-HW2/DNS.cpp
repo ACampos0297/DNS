@@ -6,6 +6,7 @@ public:
 	USHORT qType;
 	USHORT qClass;
 };
+
 class FixedDNSheader {
 public:
 	USHORT ID;
@@ -19,6 +20,49 @@ public:
 
 void DNS::constructQuery(char* lookup, char* server, int type)
 {
+	int pkt_size = strlen(lookup) + 2 + sizeof(FixedDNSheader) + sizeof(QueryHeader);
+	buf = new char[pkt_size]; //declare buf size
+	FixedDNSheader* fdh = (FixedDNSheader*)buf;
+	QueryHeader* qh = (QueryHeader*) (buf + pkt_size - sizeof(QueryHeader));
+
+	//create TXID
+	srand(time(NULL));
+	USHORT TXID = rand() % USHRT_MAX + 1;
+
+	//fill DNS header
+	fdh->ID = htons(TXID);
+	fdh->flags = htons(DNS_QUERY | DNS_RD | DNS_STDQUERY);
+	fdh->nQuestions = htons(1);
+	fdh->nAnswers = htons(0);
+	fdh->nAuthority = htons(0); //authority RR
+	fdh->nAdditional = htons(0); //additional RR
+	
+	//fill query header
+	qh->qClass = htons(DNS_INET);
+	
+	string host = string(lookup);
+	if (type == 1)
+	{
+		qh->qType = htons(DNS_A); //fill in query type
+		printf("Query\t: %s, type 1, TXID 0x%.4x\nServer\t: %s \n", lookup, TXID, server);
+	}
+	else
+	{
+		qh->qType = htons(DNS_PTR); //fill in query type
+		host = host + ".in-addr.arpa";
+		cout << "Query\t: " << lookup;
+		printf(".in-addr.arpa, type 12, TXID 0x%.4x\nServer\t: %s \n", TXID,server);
+	}
+	cout << fdh << endl;
+	//fill in query question
+	int i = 0;
+	while (host.length() != 0)
+	{
+		if (host.find_first_of(".") != string::npos) //still have dots in the host
+		{
+
+		}
+	}
 }
 
 void DNS::sendQuery()
